@@ -159,7 +159,7 @@
             <img id="viewer-img" src="" alt="Viewer Image">
             <div class="actions">
                 <a id="download-link" href="#" download>Download</a>
-                <a href="#" onclick={}>Copy Link</a>
+                <a href="#" id="copy-link">Copy Link</a>
                 <a href="#" id="close-viewer">Close</a>
             </div>
         </div>
@@ -172,6 +172,7 @@
             const viewerContainer = document.getElementById('viewer-container');
             const viewerImg = document.getElementById('viewer-img');
             const downloadLink = document.getElementById('download-link');
+            const copyLink = document.getElementById('copy-link');
             const closeViewerBtn = document.getElementById('close-viewer');
             let currentPath = ''; // Track current directory path
 
@@ -229,12 +230,23 @@
                 viewerContainer.style.display = 'flex';
                 downloadLink.href = imageUrl;
                 downloadLink.setAttribute('download', fileName);
+                copyLink.dataset.link = imageUrl;
             }
 
             // Function to close image viewer
             function closeViewer() {
                 viewerContainer.style.display = 'none';
                 viewerImg.src = '';
+            }
+
+            // Function to copy image link to clipboard
+            function copyImageLink() {
+                const link = copyLink.dataset.link;
+                navigator.clipboard.writeText(window.location.origin + link).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy link: ', err);
+                });
             }
 
             // Back button event listener
@@ -245,6 +257,9 @@
 
             // Close viewer button event listener
             closeViewerBtn.addEventListener('click', closeViewer);
+
+            // Copy link button event listener
+            copyLink.addEventListener('click', copyImageLink);
 
             // Initial fetch for root directory
             fetchFiles('');
