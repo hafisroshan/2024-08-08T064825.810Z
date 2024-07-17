@@ -14,14 +14,15 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
+            background-color: #1e1e1e; /* Dark background color */
+            color: #eee; /* Light text color */
             margin: 20px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: #333; /* Dark container background */
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -33,15 +34,15 @@
         }
 
         .file-browser {
-            border: 1px solid #ddd;
+            border: 1px solid #555; /* Darker border color */
             border-radius: 6px;
             overflow: hidden;
         }
 
         .toolbar {
             padding: 10px;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #ddd;
+            background-color: #444; /* Darker toolbar background */
+            border-bottom: 1px solid #555; /* Darker border color */
             display: flex;
             justify-content: space-between;
         }
@@ -59,35 +60,84 @@
             background-color: #005bb5;
         }
 
-        .preview-container {
-            text-align: center;
-            padding: 20px 0;
+        .tiles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
         }
 
-        #preview-img {
-            max-width: 100%;
-            display: none;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
+        .tile {
+            border: 1px solid #555; /* Darker border color */
             padding: 10px;
-            border-bottom: 1px solid #ddd;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
+            background-color: #666; /* Dark tile background */
+            border-radius: 6px;
+            position: relative;
         }
 
-        li:hover {
-            background-color: #f0f0f0;
+        .tile:hover {
+            background-color: #777; /* Darker hover background */
+            transform: translateY(-5px);
         }
 
-        li.directory:before {
-            content: '\uD83D\uDCC1'; /* Folder icon */
-            margin-right: 8px;
+        .tile img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .tile .name {
+            margin-top: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #fff; /* Light text color */
+        }
+
+        .viewer-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .viewer {
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+            overflow: hidden;
+            background-color: #222; /* Dark viewer background */
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .viewer img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin: auto;
+            max-height: calc(100vh - 100px); /* Adjust height if needed */
+        }
+
+        .viewer .actions {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .viewer .actions a {
+            text-decoration: none;
+            color: #0070e0;
+            margin: 0 10px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -100,23 +150,33 @@
             <div class="toolbar">
                 <button id="back-btn" class="btn" disabled>Back</button>
             </div>
-            <div class="preview-container">
-                <img id="preview-img" src="" alt="Preview Image">
+            <div class="tiles-container" id="file-tiles"></div>
+        </div>
+    </div>
+
+    <div class="viewer-container" id="viewer-container">
+        <div class="viewer">
+            <img id="viewer-img" src="" alt="Viewer Image">
+            <div class="actions">
+                <a id="download-link" href="#" download>Download</a>
+                <a href="#" id="close-viewer">Close</a>
             </div>
-            <ul id="file-list"></ul>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const fileList = document.getElementById('file-list');
+            const fileTiles = document.getElementById('file-tiles');
             const backBtn = document.getElementById('back-btn');
-            const previewImg = document.getElementById('preview-img');
+            const viewerContainer = document.getElementById('viewer-container');
+            const viewerImg = document.getElementById('viewer-img');
+            const downloadLink = document.getElementById('download-link');
+            const closeViewerBtn = document.getElementById('close-viewer');
             let currentPath = ''; // Track current directory path
 
             // Function to fetch files from server
             function fetchFiles(path) {
-                fetch(`http://localhost:3000/api${path ? `?dirname=${path}` : ''}`)
+                fetch(`/api${path ? `?dirname=${path}` : ''}`)
                     .then(response => response.json())
                     .then(data => {
                         currentPath = path || '';
@@ -127,45 +187,52 @@
                     });
             }
 
-            // Function to render files in the UI
+            // Function to render files in the UI as tiles
             function renderFiles(files) {
-                fileList.innerHTML = '';
+                fileTiles.innerHTML = '';
                 backBtn.disabled = currentPath === ''; // Disable back button if at root
 
                 files.forEach(file => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = file.type === 'directory' ? `${file.name}/` : file.name;
-                    listItem.dataset.type = file.type;
-                    listItem.dataset.path = file.path;
+                    const tile = document.createElement('div');
+                    tile.classList.add('tile');
+                    tile.dataset.type = file.type;
+                    tile.dataset.path = file.path;
 
                     if (file.type === 'directory') {
-                        listItem.classList.add('directory');
+                        tile.innerHTML = `
+                            <div class="name">${file.name}/</div>
+                        `;
+                        tile.addEventListener('click', () => {
+                            fetchFiles(file.path);
+                        });
+                    } else if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif)$/i)) {
+                        tile.innerHTML = `
+                            <img src="/${file.path}" alt="${file.name}">
+                            <div class="name">${file.name}</div>
+                        `;
+                        tile.addEventListener('click', () => openViewer(`/${file.path}`, file.name));
+                    } else {
+                        tile.innerHTML = `
+                            <div class="name">${file.name}</div>
+                        `;
                     }
 
-                    listItem.addEventListener('click', () => {
-                        if (file.type === 'directory') {
-                            fetchFiles(file.path);
-                        } else if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif)$/i)) {
-                            showImagePreview(file.path);
-                        } else {
-                            clearImagePreview();
-                        }
-                    });
-
-                    fileList.appendChild(listItem);
+                    fileTiles.appendChild(tile);
                 });
             }
 
-            // Function to show image preview
-            function showImagePreview(path) {
-                previewImg.src = `http://localhost:3000/${path}`;
-                previewImg.style.display = 'block';
+            // Function to open image viewer
+            function openViewer(imageUrl, fileName) {
+                viewerImg.src = imageUrl;
+                viewerContainer.style.display = 'flex';
+                downloadLink.href = imageUrl;
+                downloadLink.setAttribute('download', fileName);
             }
 
-            // Function to clear image preview
-            function clearImagePreview() {
-                previewImg.src = '';
-                previewImg.style.display = 'none';
+            // Function to close image viewer
+            function closeViewer() {
+                viewerContainer.style.display = 'none';
+                viewerImg.src = '';
             }
 
             // Back button event listener
@@ -173,6 +240,9 @@
                 const parentPath = currentPath.split('/').slice(0, -1).join('/');
                 fetchFiles(parentPath);
             });
+
+            // Close viewer button event listener
+            closeViewerBtn.addEventListener('click', closeViewer);
 
             // Initial fetch for root directory
             fetchFiles('');
