@@ -269,6 +269,13 @@
             // Close viewer button event listener
             closeViewerBtn.addEventListener('click', closeViewer);
 
+            // Close viewer when clicking on the background
+            viewerContainer.addEventListener('click', (event) => {
+                if (event.target === viewerContainer) {
+                    closeViewer();
+                }
+            });
+
             // Copy link button event listener
             copyLink.addEventListener('click', copyImageLink);
 
