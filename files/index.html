@@ -203,7 +203,7 @@
                     if (file.type === 'directory') {
                         tile.innerHTML = `
                             <img src="https://ik.imagekit.io/beats/attachments/1721218912708_42193.png" alt="Folder">
-                            <div class="name">${file.name}/</div>
+                            <div class="name">${file.name}</div>
                         `;
                         tile.addEventListener('click', () => {
                             fetchFiles(file.path);
