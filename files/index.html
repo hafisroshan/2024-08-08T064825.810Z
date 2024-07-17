@@ -210,16 +210,16 @@
                         });
                     } else if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif)$/i)) {
                         tile.innerHTML = `
-                            <img src="/${file.path}" alt="${file.name}">
+                            <img src="https://cloud-byd.pages.dev/files/${file.path}" alt="${file.name}">
                             <div class="name">${file.name}</div>
                         `;
                         tile.addEventListener('click', () => openViewer(`/${file.path}`, file.name));
                     } else if (file.type === 'file' && file.name.match(/\.(mp4|webm|ogg)$/i)) {
                         tile.innerHTML = `
-                            <video src="/${file.path}" alt="${file.name}" controls></video>
+                            <video src="https://cloud-byd.pages.dev/files/${file.path}" alt="${file.name}" controls></video>
                             <div class="name">${file.name}</div>
                         `;
-                        tile.addEventListener('click', () => openVideo(`/${file.path}`));
+                        tile.addEventListener('click', () => openVideo(`https://cloud-byd.pages.dev/files/${file.path}`));
                     } else {
                         tile.innerHTML = `
                             <div class="name">${file.name}</div>
@@ -232,9 +232,9 @@
 
             // Function to open image viewer
             function openViewer(imageUrl, fileName) {
-                viewerImg.src = imageUrl;
+                viewerImg.src = `https://cloud-byd.pages.dev/files`+ imageUrl;
                 viewerContainer.style.display = 'flex';
-                downloadLink.href = imageUrl;
+                downloadLink.href = `https://cloud-byd.pages.dev/files`+ imageUrl;
                 downloadLink.setAttribute('download', fileName);
                 copyLink.dataset.link = imageUrl;
             }
@@ -253,7 +253,7 @@
             // Function to copy image link to clipboard
             function copyImageLink() {
                 const link = copyLink.dataset.link;
-                navigator.clipboard.writeText(window.location.origin + link).then(() => {
+                navigator.clipboard.writeText( `https://cloud-byd.pages.dev/files` + link).then(() => {
                     alert('Link copied to clipboard!');
                 }).catch(err => {
                     console.error('Failed to copy link: ', err);
