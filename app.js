@@ -1,29 +1,50 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs').promises; // Using promises version of fs for async/await
 
 const app = express();
-const listingPath = path.join(__dirname, 'files');
+const baseDir = path.join(__dirname, 'files');
+app.use(express.static('files'));
+// Function to recursively get directory contents
+async function getDirectoryContents(directoryPath) {
+    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+    const files = [];
 
-// Serve static files (CSS, JavaScript, etc.)
-app.use(express.static('public'));
+    for (let entry of entries) {
+        const fullPath = path.join(directoryPath, entry.name);
+        const relativePath = path.relative(baseDir, fullPath);
+        const file = { name: entry.name, path: relativePath };
 
-// Endpoint to fetch files and directories
-app.get('/files', (req, res) => {
-    fs.readdir(listingPath, (err, files) => {
-        if (err) {
-            console.error('Error reading directory:', err);
-            return res.status(500).send('Internal Server Error');
+        if (entry.isDirectory()) {
+            file.type = 'directory';
+            // Don't fetch children automatically here
+        } else {
+            file.type = 'file';
         }
 
-        const fileList = files.map(file => {
-            const filePath = path.join(listingPath, file);
-            const isDirectory = fs.statSync(filePath).isDirectory();
-            return { name: file, isDirectory };
-        });
+        files.push(file);
+    }
 
-        res.json({ files: fileList });
-    });
+    return files;
+}
+
+// Endpoint to fetch files and directories
+app.get('/api', async (req, res) => {
+    const { dirname } = req.query;
+
+    try {
+        if (dirname) {
+            const dirPath = path.join(baseDir, dirname);
+            const files = await getDirectoryContents(dirPath);
+            res.json({ files });
+        } else {
+            const files = await getDirectoryContents(baseDir);
+            res.json({ files });
+        }
+    } catch (err) {
+        console.error('Error reading directory:', err);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 const PORT = 3000;
