@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Browser</title>
+    <style>
+        /* Add your CSS styles for the file browser here */
+    </style>
+</head>
+<body>
+    <div id="file-browser">
+        <!-- Folders and files will be dynamically added here -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initial load of files in root directory
+            loadFiles('/');
+
+            function loadFiles(path) {
+                $.ajax({
+                    url: path,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        renderFiles(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading files:', error);
+                    }
+                });
+            }
+
+            function renderFiles(data) {
+                $('#file-browser').empty();
+                data.files.forEach(function(item) {
+                    var $element = $('<div>');
+                    if (item.isDirectory) {
+                        $element.text(item.name + '/');
+                        $element.css('cursor', 'pointer');
+                        $element.on('click', function() {
+                            loadFiles(item.name);
+                        });
+                    } else {
+                        var $link = $('<a>');
+                        $link.attr('href', item.name);
+                        $link.text(item.name);
+                        $link.attr('target', '_blank');
+                        $element.append($link);
+                    }
+                    $('#file-browser').append($element);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
