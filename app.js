@@ -6,7 +6,7 @@ const app = express();
 const listingPath = path.join(__dirname, 'files');
 
 // Serve static files (CSS, JavaScript, etc.)
-app.use(express.static('files'));
+app.use(express.static('public'));
 
 // Endpoint to fetch files and directories
 app.get('/files', (req, res) => {
