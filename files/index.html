@@ -82,7 +82,7 @@
             transform: translateY(-5px);
         }
 
-        .tile img {
+        .tile img, .tile video {
             max-width: 100%;
             height: auto;
             border-radius: 4px;
@@ -214,6 +214,12 @@
                             <div class="name">${file.name}</div>
                         `;
                         tile.addEventListener('click', () => openViewer(`/${file.path}`, file.name));
+                    } else if (file.type === 'file' && file.name.match(/\.(mp4|webm|ogg)$/i)) {
+                        tile.innerHTML = `
+                            <video src="/${file.path}" alt="${file.name}" controls></video>
+                            <div class="name">${file.name}</div>
+                        `;
+                        tile.addEventListener('click', () => openVideo(`/${file.path}`));
                     } else {
                         tile.innerHTML = `
                             <div class="name">${file.name}</div>
@@ -231,6 +237,11 @@
                 downloadLink.href = imageUrl;
                 downloadLink.setAttribute('download', fileName);
                 copyLink.dataset.link = imageUrl;
+            }
+
+            // Function to open video in new tab
+            function openVideo(videoUrl) {
+                window.open(videoUrl, '_blank');
             }
 
             // Function to close image viewer
@@ -263,7 +274,6 @@
 
             // Initial fetch for root directory
             fetchFiles('');
-
         });
     </script>
 </body>
