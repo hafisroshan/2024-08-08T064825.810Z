@@ -53,7 +53,7 @@
                             link.classList.add('folder-icon');
                             link.setAttribute('href', `/${file.name}`);
                         } else {
-                            link.setAttribute('href', `/view-file?filename=${file.name}`);
+                            link.setAttribute('href', `/files/${file.name}`);
                             link.setAttribute('target', '_blank'); // Open in new tab
                         }
                         listItem.appendChild(link);
