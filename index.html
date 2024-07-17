@@ -5,54 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Browser</title>
     <style>
-        /* Add your CSS styles for the file browser here */
+        /* Basic styling for the file browser */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-list li {
+            margin-bottom: 5px;
+        }
+        .file-list li a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+        }
+        .file-list li a:hover {
+            text-decoration: underline;
+        }
+        .folder-icon::before {
+            content: '\1F4C1'; /* Folder emoji */
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-    <div id="file-browser">
-        <!-- Folders and files will be dynamically added here -->
-    </div>
+    <h1>File Browser</h1>
+    <ul class="file-list" id="file-list">
+        <!-- Files and folders will be dynamically added here -->
+    </ul>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Initial load of files in root directory
-            loadFiles('/');
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/files')
+                .then(response => response.json())
+                .then(data => {
+                    const fileList = document.getElementById('file-list');
+                    fileList.innerHTML = ''; // Clear existing list
 
-            function loadFiles(path) {
-                $.ajax({
-                    url: path,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        renderFiles(data);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error loading files:', error);
-                    }
-                });
-            }
-
-            function renderFiles(data) {
-                $('#file-browser').empty();
-                data.files.forEach(function(item) {
-                    var $element = $('<div>');
-                    if (item.isDirectory) {
-                        $element.text(item.name + '/');
-                        $element.css('cursor', 'pointer');
-                        $element.on('click', function() {
-                            loadFiles(item.name);
-                        });
-                    } else {
-                        var $link = $('<a>');
-                        $link.attr('href', item.name);
-                        $link.text(item.name);
-                        $link.attr('target', '_blank');
-                        $element.append($link);
-                    }
-                    $('#file-browser').append($element);
-                });
-            }
+                    data.files.forEach(file => {
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.textContent = file.name;
+                        if (file.isDirectory) {
+                            link.classList.add('folder-icon');
+                            link.setAttribute('href', `/${file.name}`);
+                        } else {
+                            link.setAttribute('href', `/view-file?filename=${file.name}`);
+                            link.setAttribute('target', '_blank'); // Open in new tab
+                        }
+                        listItem.appendChild(link);
+                        fileList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error('Error fetching files:', error));
         });
     </script>
 </body>
