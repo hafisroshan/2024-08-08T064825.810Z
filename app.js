@@ -5,6 +5,9 @@ const fs = require('fs').promises; // Using promises version of fs for async/awa
 const app = express();
 const baseDir = path.join(__dirname, 'files');
 app.use(express.static('files'));
+// Array of files to ignore (add more if needed)
+const ignoreFiles = ['index.html'];
+
 // Function to recursively get directory contents
 async function getDirectoryContents(directoryPath) {
     const entries = await fs.readdir(directoryPath, { withFileTypes: true });
@@ -13,11 +16,16 @@ async function getDirectoryContents(directoryPath) {
     for (let entry of entries) {
         const fullPath = path.join(directoryPath, entry.name);
         const relativePath = path.relative(baseDir, fullPath);
+
+        if (ignoreFiles.includes(entry.name)) {
+            continue; // Skip ignored files
+        }
+
         const file = { name: entry.name, path: relativePath };
 
         if (entry.isDirectory()) {
             file.type = 'directory';
-            // Don't fetch children automatically here
+            // Only fetch children when explicitly requested
         } else {
             file.type = 'file';
         }
