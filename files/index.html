@@ -3,198 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Browser</title>
+    <title>File Browser - Dropbox UI</title>
     <style>
-        /* Basic styling for the grid and lightbox */
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
+            background-color: #f0f2f5;
+            margin: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            grid-gap: 20px;
-        }
-
-        .item {
-            position: relative;
-            overflow: hidden;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #fff;
-            transition: transform 0.2s ease-out;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .item:hover {
-            transform: translateY(-5px);
-        }
-
-        .item img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 5px 5px 0 0;
-            cursor: pointer;
-        }
-
-        .folder-icon::before {
-            content: '\1F4C1'; /* Folder emoji */
-            font-size: 36px;
-            margin: 10px;
-            display: block;
+        header {
             text-align: center;
+            margin-bottom: 20px;
         }
 
-        .lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 999;
+        .file-browser {
+            border: 1px solid #ddd;
+            border-radius: 6px;
             overflow: hidden;
         }
 
-        .lightbox-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+        .toolbar {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .lightbox-image {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 5px;
-        }
-
-        .caption {
-            color: #fff;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-
-        .close-button {
-            color: #fff;
-            font-size: 40px;
-            position: absolute;
-            top: 10px;
-            right: 20px;
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            background-color: #0070e0;
+            color: white;
+            border-radius: 4px;
             cursor: pointer;
         }
 
-        .close-button:hover {
-            color: #ccc;
+        .btn:hover {
+            background-color: #005bb5;
+        }
+
+        .preview-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        #preview-img {
+            max-width: 100%;
+            display: none;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        li:hover {
+            background-color: #f0f0f0;
+        }
+
+        li.directory:before {
+            content: '\uD83D\uDCC1'; /* Folder icon */
+            margin-right: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="grid" id="file-grid">
-            <!-- Files and folders will be dynamically added here -->
-        </div>
-    </div>
-
-    <div class="lightbox" id="lightbox">
-        <div class="lightbox-content">
-            <img class="lightbox-image" src="" alt="">
-            <p class="caption" id="caption"></p>
-            <span class="close-button" onclick="closeLightbox()">&times;</span>
+        <header>
+            <h1>File Browser</h1>
+        </header>
+        <div class="file-browser">
+            <div class="toolbar">
+                <button id="back-btn" class="btn" disabled>Back</button>
+            </div>
+            <div class="preview-container">
+                <img id="preview-img" src="" alt="Preview Image">
+            </div>
+            <ul id="file-list"></ul>
         </div>
     </div>
 
     <script>
-        // Function to fetch files and folders from server
-        async function fetchFiles() {
-            try {
-                const response = await fetch('/files'); // Replace with your API endpoint
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                displayFiles(data.files);
-            } catch (error) {
-                console.error('Error fetching files:', error);
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileList = document.getElementById('file-list');
+            const backBtn = document.getElementById('back-btn');
+            const previewImg = document.getElementById('preview-img');
+            let currentPath = ''; // Track current directory path
+
+            // Function to fetch files from server
+            function fetchFiles(path) {
+                fetch(`http://localhost:3000/api${path ? `?dirname=${path}` : ''}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        currentPath = path || '';
+                        renderFiles(data.files);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching files:', error);
+                    });
             }
-        }
 
-        // Function to display files and folders in the grid
-        function displayFiles(files) {
-            const grid = document.getElementById('file-grid');
+            // Function to render files in the UI
+            function renderFiles(files) {
+                fileList.innerHTML = '';
+                backBtn.disabled = currentPath === ''; // Disable back button if at root
 
-            files.forEach(file => {
-                const item = document.createElement('div');
-                item.className = 'item';
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = file.type === 'directory' ? `${file.name}/` : file.name;
+                    listItem.dataset.type = file.type;
+                    listItem.dataset.path = file.path;
 
-                const link = document.createElement('a');
-                link.setAttribute('href', file.isDirectory ? '#' : file.path);
-                link.setAttribute('data-type', file.isDirectory ? 'folder' : 'file');
-                link.setAttribute('data-caption', file.name);
+                    if (file.type === 'directory') {
+                        listItem.classList.add('directory');
+                    }
 
-                if (file.isDirectory) {
-                    const folderIcon = document.createElement('div');
-                    folderIcon.className = 'folder-icon';
-                    link.appendChild(folderIcon);
-                    const folderName = document.createElement('span');
-                    folderName.textContent = file.name;
-                    link.appendChild(folderName);
-                } else {
-                    const img = document.createElement('img');
-                    img.src = `/${file.name}`; // Assuming there's a thumbnail URL in your data
-                    img.alt = file.name;
-                    link.appendChild(img);
-                }
+                    listItem.addEventListener('click', () => {
+                        if (file.type === 'directory') {
+                            fetchFiles(file.path);
+                        } else if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif)$/i)) {
+                            showImagePreview(file.path);
+                        } else {
+                            clearImagePreview();
+                        }
+                    });
 
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    openLightbox(link);
+                    fileList.appendChild(listItem);
                 });
-
-                item.appendChild(link);
-                grid.appendChild(item);
-            });
-        }
-
-        // Open lightbox and display clicked image or folder
-        function openLightbox(target) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImage = document.querySelector('.lightbox-image');
-            const lightboxCaption = document.getElementById('caption');
-
-            const type = target.getAttribute('data-type');
-            const caption = target.getAttribute('data-caption');
-
-            if (type === 'file') {
-                const fullImageSrc = target.href;
-                lightboxImage.src = fullImageSrc;
-                lightboxCaption.textContent = caption;
-                lightbox.style.display = 'block';
-            } else if (type === 'folder') {
-                // Handle folder opening action (e.g., navigate to folder)
-                alert(`Opening ${caption}...`);
             }
-        }
 
-        // Close lightbox
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-        }
+            // Function to show image preview
+            function showImagePreview(path) {
+                previewImg.src = `http://localhost:3000/${path}`;
+                previewImg.style.display = 'block';
+            }
 
-        // Fetch files and folders when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchFiles();
+            // Function to clear image preview
+            function clearImagePreview() {
+                previewImg.src = '';
+                previewImg.style.display = 'none';
+            }
+
+            // Back button event listener
+            backBtn.addEventListener('click', () => {
+                const parentPath = currentPath.split('/').slice(0, -1).join('/');
+                fetchFiles(parentPath);
+            });
+
+            // Initial fetch for root directory
+            fetchFiles('');
+
         });
     </script>
 </body>
