@@ -1,287 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sreeku Museum</title>
     <style>
-        /* Reset default margin and padding */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      /* Reset default margin and padding */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e1e; /* Dark background color */
-            color: #eee; /* Light text color */
-            margin: 20px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1e1e1e; /* Dark background color */
+        color: #eee; /* Light text color */
+        margin: 20px;
+      }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #333; /* Dark container background */
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #333; /* Dark container background */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
 
-        .file-browser {
-            border: 1px solid #555; /* Darker border color */
-            border-radius: 6px;
-            overflow: hidden;
-        }
+      .file-browser {
+        border: 1px solid #555; /* Darker border color */
+        border-radius: 6px;
+        overflow: hidden;
+      }
 
-        .toolbar {
-            padding: 10px;
-            background-color: #444; /* Darker toolbar background */
-            border-bottom: 1px solid #555; /* Darker border color */
-            display: flex;
-            justify-content: space-between;
-        }
+      .toolbar {
+        padding: 10px;
+        background-color: #444; /* Darker toolbar background */
+        border-bottom: 1px solid #555; /* Darker border color */
+        display: flex;
+        justify-content: space-between;
+      }
 
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            background-color: #0070e0;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        background-color: #0070e0;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+      }
 
-        .btn:hover {
-            background-color: #005bb5;
-        }
+      .btn:hover {
+        background-color: #005bb5;
+      }
 
-        .tiles-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
+      .tiles-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
 
-        .tile {
-            border: 1px solid #555; /* Darker border color */
-            padding: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            background-color: #666; /* Dark tile background */
-            border-radius: 6px;
-            position: relative;
-        }
+      .tile {
+        border: 1px solid #555; /* Darker border color */
+        padding: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        background-color: #666; /* Dark tile background */
+        border-radius: 6px;
+        position: relative;
+      }
 
-        .tile:hover {
-            background-color: #777; /* Darker hover background */
-            transform: translateY(-5px);
-        }
+      .tile:hover {
+        background-color: #777; /* Darker hover background */
+        transform: translateY(-5px);
+      }
 
-        .tile img, .tile video {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
+      .tile img,
+      .tile video {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
 
-        .tile .name {
-            margin-top: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #fff; /* Light text color */
-        }
+      .tile .name {
+        margin-top: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #fff; /* Light text color */
+      }
 
-        .viewer-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
+      .viewer-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 999;
+        justify-content: center;
+        align-items: center;
+      }
 
-        .viewer {
-            max-width: 100%;
-            max-height: 100%;
-            margin: auto;
-            overflow: hidden;
-            background-color: #222; /* Dark viewer background */
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-        }
+      .viewer {
+        max-width: 100%;
+        max-height: 100%;
+        margin: auto;
+        overflow: hidden;
+        background-color: #222; /* Dark viewer background */
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .viewer img {
-            max-width: 100%;
-            height: auto;
-            object-fit: contain;
-            margin: auto;
-            max-height: calc(100vh - 100px); /* Adjust height if needed */
-        }
+      .viewer img {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+        margin: auto;
+        max-height: calc(100vh - 100px); /* Adjust height if needed */
+      }
 
-        .viewer .actions {
-            padding: 10px;
-            text-align: center;
-        }
+      .viewer .actions {
+        padding: 10px;
+        text-align: center;
+      }
 
-        .viewer .actions a {
-            text-decoration: none;
-            color: #0070e0;
-            margin: 0 10px;
-            cursor: pointer;
-        }
+      .viewer .actions a {
+        text-decoration: none;
+        color: #0070e0;
+        margin: 0 10px;
+        cursor: pointer;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>Sreeku Museum</h1>
-        </header>
-        <div class="file-browser">
-            <div class="toolbar">
-                <button id="back-btn" class="btn" disabled>Back</button>
-            </div>
-            <div class="tiles-container" id="file-tiles"></div>
+      <header>
+        <h1>Sreeku Museum</h1>
+      </header>
+      <div class="file-browser">
+        <div class="toolbar">
+          <button id="back-btn" class="btn" disabled>Back</button>
         </div>
+        <div class="tiles-container" id="file-tiles"></div>
+      </div>
     </div>
 
     <div class="viewer-container" id="viewer-container">
-        <div class="viewer">
-            <img id="viewer-img" src="" alt="Viewer Image">
-            <div class="actions">
-                <a id="download-link" href="#" download>Download</a>
-                <a href="#" id="copy-link">Copy Link</a>
-                <a href="#" id="close-viewer">Close</a>
-            </div>
+      <div class="viewer">
+        <img id="viewer-img" src="" alt="Viewer Image" />
+        <div class="actions">
+          <a id="download-link" href="#" download>Download</a>
+          <a href="#" id="copy-link">Copy Link</a>
+          <a href="#" id="close-viewer">Close</a>
         </div>
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileTiles = document.getElementById('file-tiles');
-            const backBtn = document.getElementById('back-btn');
-            const viewerContainer = document.getElementById('viewer-container');
-            const viewerImg = document.getElementById('viewer-img');
-            const downloadLink = document.getElementById('download-link');
-            const copyLink = document.getElementById('copy-link');
-            const closeViewerBtn = document.getElementById('close-viewer');
-            let currentPath = ''; // Track current directory path
+      document.addEventListener("DOMContentLoaded", function () {
+        const fileTiles = document.getElementById("file-tiles");
+        const backBtn = document.getElementById("back-btn");
+        const viewerContainer = document.getElementById("viewer-container");
+        const viewerImg = document.getElementById("viewer-img");
+        const downloadLink = document.getElementById("download-link");
+        const copyLink = document.getElementById("copy-link");
+        const closeViewerBtn = document.getElementById("close-viewer");
+        let currentPath = ""; // Track current directory path
 
-            // Function to fetch files from server
-            function fetchFiles(path) {
-                fetch(`/api${path ? `?dirname=${path}` : ''}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        currentPath = path || '';
-                        renderFiles(data.files);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching files:', error);
-                    });
-            }
+        // Function to fetch files from server
+        function fetchFiles(path) {
+          fetch(`/api${path ? `?dirname=${path}` : ""}`)
+            .then((response) => response.json())
+            .then((data) => {
+              currentPath = path || "";
+              renderFiles(data.files);
+            })
+            .catch((error) => {
+              console.error("Error fetching files:", error);
+            });
+        }
 
-            // Function to render files in the UI as tiles
-            function renderFiles(files) {
-                fileTiles.innerHTML = '';
-                backBtn.disabled = currentPath === ''; // Disable back button if at root
+        // Function to render files in the UI as tiles
+        function renderFiles(files) {
+          fileTiles.innerHTML = "";
+          backBtn.disabled = currentPath === ""; // Disable back button if at root
 
-                files.forEach(file => {
-                    const tile = document.createElement('div');
-                    tile.classList.add('tile');
-                    tile.dataset.type = file.type;
-                    tile.dataset.path = file.path;
+          files.forEach((file) => {
+            const tile = document.createElement("div");
+            tile.classList.add("tile");
+            tile.dataset.type = file.type;
+            tile.dataset.path = file.path;
 
-                    if (file.type === 'directory') {
-                        tile.innerHTML = `
+            if (file.type === "directory") {
+              tile.innerHTML = `
                             <img src="https://ik.imagekit.io/beats/attachments/1721218912708_42193.png" alt="Folder">
                             <div class="name">${file.name}</div>
                         `;
-                        tile.addEventListener('click', () => {
-                            fetchFiles(file.path);
-                        });
-                    } else if (file.type === 'file' && file.name.match(/\.(jpeg|jpg|png|gif)$/i)) {
-                        tile.innerHTML = `
+              tile.addEventListener("click", () => {
+                fetchFiles(file.path);
+              });
+            } else if (
+              file.type === "file" &&
+              file.name.match(/\.(jpeg|jpg|png|gif)$/i)
+            ) {
+              tile.innerHTML = `
                             <img src="https://cloud-byd.pages.dev/files/${file.path}" alt="${file.name}">
                             <div class="name">${file.name}</div>
                         `;
-                        tile.addEventListener('click', () => openViewer(`/${file.path}`, file.name));
-                    } else if (file.type === 'file' && file.name.match(/\.(mp4|webm|ogg)$/i)) {
-                        tile.innerHTML = `
+              tile.addEventListener("click", () =>
+                openViewer(`/${file.path}`, file.name)
+              );
+            } else if (
+              file.type === "file" &&
+              file.name.match(/\.(mp4|webm|ogg)$/i)
+            ) {
+              tile.innerHTML = `
                             <video src="https://cloud-byd.pages.dev/files/${file.path}" alt="${file.name}" controls></video>
                             <div class="name">${file.name}</div>
                         `;
-                        tile.addEventListener('click', () => openVideo(`https://cloud-byd.pages.dev/files/${file.path}`));
-                    } else {
-                        tile.innerHTML = `
+              tile.addEventListener("click", () =>
+                openVideo(`https://cloud-byd.pages.dev/files/${file.path}`)
+              );
+            } else {
+              tile.innerHTML = `
                             <div class="name">${file.name}</div>
                         `;
-                    }
-
-                    fileTiles.appendChild(tile);
-                });
             }
 
-            // Function to open image viewer
-            function openViewer(imageUrl, fileName) {
-                viewerImg.src = `https://cloud-byd.pages.dev/files`+ imageUrl;
-                viewerContainer.style.display = 'flex';
-                downloadLink.href = `https://cloud-byd.pages.dev/files`+ imageUrl;
-                downloadLink.setAttribute('download', fileName);
-                copyLink.dataset.link = imageUrl;
-            }
+            fileTiles.appendChild(tile);
+          });
+        }
 
-            // Function to open video in new tab
-            function openVideo(videoUrl) {
-                window.open(videoUrl, '_blank');
-            }
+        // Function to open image viewer
+        function openViewer(imageUrl, fileName) {
+          viewerImg.src = `https://cloud-byd.pages.dev/files` + imageUrl;
+          viewerContainer.style.display = "flex";
+          downloadLink.href = `https://cloud-byd.pages.dev/files` + imageUrl;
+          downloadLink.setAttribute("download", fileName);
+          copyLink.dataset.link = imageUrl;
+        }
 
-            // Function to close image viewer
-            function closeViewer() {
-                viewerContainer.style.display = 'none';
-                viewerImg.src = '';
-            }
+        // Function to open video in new tab
+        function openVideo(videoUrl) {
+          window.open(videoUrl, "_blank");
+        }
 
-            // Function to copy image link to clipboard
-            function copyImageLink() {
-                const link = copyLink.dataset.link;
-                navigator.clipboard.writeText( `https://cloud-byd.pages.dev/files` + link).then(() => {
-                    alert('Link copied to clipboard!');
-                }).catch(err => {
-                    console.error('Failed to copy link: ', err);
-                });
-            }
+        // Function to close image viewer
+        function closeViewer() {
+          viewerContainer.style.display = "none";
+          viewerImg.src = "";
+        }
 
-            // Back button event listener
-            backBtn.addEventListener('click', () => {
-                const parentPath = currentPath.split('/').slice(0, -1).join('/');
-                fetchFiles(parentPath);
+        // Function to copy image link to clipboard
+        function copyImageLink() {
+          const link = copyLink.dataset.link;
+          let replacedUrl = link.replace(/\\/g, "/");
+          let encodedUrl = replacedUrl
+            .split("/")
+            .map((part) => {
+              return part.replace(/ /g, "%20"); // Encode spaces
+            })
+            .join("/");
+          navigator.clipboard
+            .writeText(`https://cloud-byd.pages.dev/files` + encodedUrl)
+            .then(() => {
+              alert("Link copied to clipboard!");
+            })
+            .catch((err) => {
+              console.error("Failed to copy link: ", err);
             });
+        }
 
-            // Close viewer button event listener
-            closeViewerBtn.addEventListener('click', closeViewer);
-
-            // Close viewer when clicking on the background
-            viewerContainer.addEventListener('click', (event) => {
-                if (event.target === viewerContainer) {
-                    closeViewer();
-                }
-            });
-
-            // Copy link button event listener
-            copyLink.addEventListener('click', copyImageLink);
-
-            // Initial fetch for root directory
-            fetchFiles('');
+        // Back button event listener
+        backBtn.addEventListener("click", () => {
+          const parentPath = currentPath.split("/").slice(0, -1).join("/");
+          fetchFiles(parentPath);
         });
+
+        // Close viewer button event listener
+        closeViewerBtn.addEventListener("click", closeViewer);
+
+        // Close viewer when clicking on the background
+        viewerContainer.addEventListener("click", (event) => {
+          if (event.target === viewerContainer) {
+            closeViewer();
+          }
+        });
+
+        // Copy link button event listener
+        copyLink.addEventListener("click", copyImageLink);
+
+        // Initial fetch for root directory
+        fetchFiles("");
+      });
     </script>
-</body>
+  </body>
 </html>
