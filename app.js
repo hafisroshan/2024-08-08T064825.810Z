@@ -6,24 +6,7 @@ const app = express();
 const listingPath = path.join(__dirname, "files");
 
 app.get("*", (req, res) => {
-    // Build the path of the file using the URL pathname of the request.
-    const filePath = path.join(listingPath, req.path);
-
-    // If the path does not exist, return a 404.
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).end();
-    }
-
-    // Check if the existing item is a directory or a file.
-    if (fs.statSync(filePath).isDirectory()) {
-        const filesInDir = fs.readdirSync(filePath);
-        // If the item is a directory: show all the items inside that directory.
-        return res.send(filesInDir);
-    } else {
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        // If the item is a file: show the content of that file.
-        return res.send(fileContent);
-    }
+ res.send("haha")
 });
 
 const PORT = 3000;
