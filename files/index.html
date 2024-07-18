@@ -214,7 +214,7 @@
               file.name.match(/\.(jpeg|jpg|png|gif)$/i)
             ) {
               tile.innerHTML = `
-                            <img src="/${file.path}" alt="${file.name}">
+                            <img src="https://sreeku.chaayakada.fun/files/${file.path}" alt="${file.name}">
                             <div class="name">${file.name}</div>
                         `;
               tile.addEventListener("click", () =>
@@ -225,10 +225,12 @@
               file.name.match(/\.(mp4|webm|ogg)$/i)
             ) {
               tile.innerHTML = `
-                            <video src="/${file.path}" alt="${file.name}" controls></video>
+                            <video src="https://sreeku.chaayakada.fun/files/${file.path}" alt="${file.name}" controls></video>
                             <div class="name">${file.name}</div>
                         `;
-              tile.addEventListener("click", () => openVideo(`/${file.path}`));
+              tile.addEventListener("click", () =>
+                openVideo(`https://sreeku.chaayakada.fun/files/${file.path}`)
+              );
             } else {
               tile.innerHTML = `
                             <div class="name">${file.name}</div>
@@ -241,9 +243,9 @@
 
         // Function to open image viewer
         function openViewer(imageUrl, fileName) {
-          viewerImg.src = imageUrl;
+          viewerImg.src = `https://sreeku.chaayakada.fun/files` + imageUrl;
           viewerContainer.style.display = "flex";
-          downloadLink.href = imageUrl;
+          downloadLink.href = `https://sreeku.chaayakada.fun/files` + imageUrl;
           downloadLink.setAttribute("download", fileName);
           copyLink.dataset.link = imageUrl;
         }
@@ -270,7 +272,7 @@
             })
             .join("/");
           navigator.clipboard
-            .writeText(window.location.origin + encodedUrl)
+            .writeText(`https://sreeku.chaayakada.fun/files` + encodedUrl)
             .then(() => {
               alert("Link copied to clipboard!");
             })
