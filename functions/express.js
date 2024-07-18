@@ -6,7 +6,7 @@ const app = express();
 const router = express.Router();
 
 const baseDir = path.join(__dirname, "files");
-app.use(express.static("../files"));
+app.use(express.static("files"));
 // Array of files to ignore (add more if needed)
 const ignoreFiles = ["index.html"];
 
@@ -38,7 +38,7 @@ async function getDirectoryContents(directoryPath) {
   return files;
 }
 
-router.get("/", async (req, res) => {
+router.get("/api", async (req, res) => {
   const { dirname } = req.query;
   try {
     if (dirname) {
@@ -55,6 +55,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-app.use("/api", router);
+app.use("/.netlify/functions/express", router);
 
 module.exports.handler = serverless(app);
