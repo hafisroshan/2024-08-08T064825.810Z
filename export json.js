@@ -5,6 +5,7 @@ const fs = require("fs").promises; // Using promises version of fs for async/awa
 const app = express();
 const baseDir = path.join(__dirname, "files");
 app.use(express.static("files"));
+
 // Array of files to ignore (add more if needed)
 const ignoreFiles = ["index.html"];
 
@@ -21,13 +22,11 @@ async function getDirectoryContents(directoryPath) {
       continue; // Skip ignored files
     }
 
-    const file = { name: entry.name, path: relativePath };
+    const file = { name: entry.name, path: relativePath, type: entry.isDirectory() ? "directory" : "file" };
 
     if (entry.isDirectory()) {
-      file.type = "directory";
-      // Only fetch children when explicitly requested
-    } else {
-      file.type = "file";
+      // Recursively fetch children
+      file.children = await getDirectoryContents(fullPath);
     }
 
     files.push(file);
@@ -38,16 +37,9 @@ async function getDirectoryContents(directoryPath) {
 
 // Endpoint to fetch files and directories
 app.get("/api", async (req, res) => {
-  const { dirname } = req.query;
   try {
-    if (dirname) {
-      const dirPath = path.join(baseDir, dirname);
-      const files = await getDirectoryContents(dirPath);
-      res.json({ files });
-    } else {
-      const files = await getDirectoryContents(baseDir);
-      res.json({ files });
-    }
+    const files = await getDirectoryContents(baseDir);
+    res.json({ files });
   } catch (err) {
     console.error("Error reading directory:", err);
     res.status(500).send("Internal Server Error");
@@ -56,5 +48,5 @@ app.get("/api", async (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
