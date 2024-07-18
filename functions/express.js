@@ -1,6 +1,7 @@
 const express = require("express");
 const serverless = require("serverless-http");
-
+const path = require("path");
+const fs = require("fs").promises; // Using promises version of fs for async/await
 const app = express();
 const router = express.Router();
 
