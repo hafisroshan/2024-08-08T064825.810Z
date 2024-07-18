@@ -38,7 +38,7 @@ async function getDirectoryContents(directoryPath) {
   return files;
 }
 
-router.get("/api", async (req, res) => {
+router.get("/", async (req, res) => {
   const { dirname } = req.query;
   try {
     if (dirname) {
@@ -55,6 +55,6 @@ router.get("/api", async (req, res) => {
   }
 });
 
-app.use("/.netlify/functions/express", router);
+app.use("/api", router);
 
 module.exports.handler = serverless(app);
