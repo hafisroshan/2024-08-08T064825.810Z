@@ -1,7 +1,3 @@
 [build]
   functions = "functions"
     publish = "files"
-  [[redirects]]
-  from = "/api"
-  to = "/.netlify/functions/express/api"
-  status = 200
