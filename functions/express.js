@@ -5,8 +5,8 @@ const fs = require("fs").promises; // Using promises version of fs for async/awa
 const app = express();
 const router = express.Router();
 
-const baseDir = path.join(__dirname, "files");
-app.use(express.static(".././files"));
+const baseDir = path.join(__dirname, "../files");
+app.use(express.static("../files"));
 // Array of files to ignore (add more if needed)
 const ignoreFiles = ["index.html"];
 
