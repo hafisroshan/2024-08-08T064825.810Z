@@ -1,5 +1,4 @@
 const express = require("express");
-const serverless = require("serverless-http"); //netlify shi
 const path = require("path");
 const fs = require("fs").promises; // Using promises version of fs for async/await
 
@@ -60,4 +59,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-module.exports.handler = serverless(app);//netlify shi
